@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -46,7 +47,29 @@ class TimetableNotification extends Command
         ],
         'page' => 123,
         ];
-        
-        dd($cachedResponse);
+        $content = data_get($cachedResponse, 'content', []);
+
+        $items = [];
+
+        foreach ($content as $item) {
+
+            $date = Carbon::parse(data_get($item, 'date'))->locale('et');
+
+            $items[$date->dayName][] = [
+                'name' => data_get($item, 'nameEt'),
+                'date' => $date->translatedFormat('d. F Y'),
+                'start' => data_get($item, 'timeStart'), 
+                'end' => data_get($item, 'timeEnd'), 
+                'room' => data_get($item, 'rooms.0.roomCode'), 
+                ];
+        }
+
+        foreach ($items as $day => $lessons) {
+            $this->info($day);
+            $this->table(
+                ['nimetus', 'kuupaev', 'algus', 'lopp', 'klass'],
+                $lessons,
+            );
+        }
     }
 }
