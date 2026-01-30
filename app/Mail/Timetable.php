@@ -17,7 +17,9 @@ class Timetable extends Mailable
      * Create a new message instance.
      */
     public function __construct(
-        public array $days
+        public array $days,
+        public string $startOfWeek,
+        public string $endOfWeek
     )
     {
         
@@ -29,7 +31,7 @@ class Timetable extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Timetable',
+            subject: sprintf('Nadala Tunniplaan %s - %s', $this->startOfWeek, $this->endOfWeek),
         );
     }
 
