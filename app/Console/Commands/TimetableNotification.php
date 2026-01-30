@@ -34,7 +34,7 @@ class TimetableNotification extends Command
     $startOfWeek = now()->addWeek()->startOfWeek();
     $endOfWeek = now()->addWeek()->endOfWeek();
 
-        $cachedResponse = Cache::remember('timetable', now()->addHour(), function() use ($startOfWeek, $endOfWeek) {
+        $cachedResponse = Cache::remember($startOfWeek->toIso8601String(), now()->addHour(), function() use ($startOfWeek, $endOfWeek) {
             return Http::get('https://tahveltp.edu.ee/hois_back/timetableevents/timetableSearch', [
                 'from' => $startOfWeek->toIso8601String(),
                 'lang' => 'ET',
@@ -62,7 +62,12 @@ class TimetableNotification extends Command
                 ];
         }
 
-        Mail::to('example@example.com')->send(new Timetable($items, $startOfWeek->translatedFormat('d. F Y'), $endOfWeek->translatedFormat('d. F Y')));
+        Mail::to('example@example.com')
+            ->send(new Timetable(
+                $items,
+                $startOfWeek->locale('et')->translatedFormat('d. F Y'), 
+                $endOfWeek->locale('et')->translatedFormat('d. F Y'))
+            );
 
         foreach ($items as $day => $lessons) {
             $this->info($day);
