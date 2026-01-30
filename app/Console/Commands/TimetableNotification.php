@@ -41,12 +41,6 @@ class TimetableNotification extends Command
             ])->json();
         });
 
-        $demo = ['content' => [
-            ['key' => 'value'],
-            ['key' => 'value2'],
-        ],
-        'page' => 123,
-        ];
         $content = data_get($cachedResponse, 'content', []);
 
         $items = [];
@@ -54,7 +48,6 @@ class TimetableNotification extends Command
         foreach ($content as $item) {
 
             $date = Carbon::parse(data_get($item, 'date'))->locale('et');
-
             $items[$date->dayName][] = [
                 'name' => data_get($item, 'nameEt'),
                 'date' => $date->translatedFormat('d. F Y'),
@@ -63,7 +56,7 @@ class TimetableNotification extends Command
                 'room' => data_get($item, 'rooms.0.roomCode'), 
                 ];
         }
-
+        
         foreach ($items as $day => $lessons) {
             $this->info($day);
             $this->table(
