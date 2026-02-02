@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Mail\Timetable;
+use App\Models\Timetable as ModelsTimetable;
+use App\Notifications\TimetableNotification as NotificationsTimetableNotification;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -62,12 +64,14 @@ class TimetableNotification extends Command
                 ];
         }
 
-        Mail::to(config('mail.notification.email'))
-            ->send(new Timetable(
-                $items,
-                $startOfWeek->locale('et')->translatedFormat('d. F Y'), 
-                $endOfWeek->locale('et')->translatedFormat('d. F Y'))
-            );
+        app(ModelsTimetable::class)->notify(new NotificationsTimetableNotification);
+
+        #Mail::to(config('mail.notification.email'))
+        #    ->send(new Timetable(
+        #        $items,
+        #        $startOfWeek->locale('et')->translatedFormat('d. F Y'), 
+        #        $endOfWeek->locale('et')->translatedFormat('d. F Y'))
+        #    );
 
         foreach ($items as $day => $lessons) {
             $this->info($day);
